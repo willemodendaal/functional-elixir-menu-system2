@@ -9,13 +9,16 @@ defmodule MyMenu do
   end
 
   # User input.
-  def input(str, _state) do
+  def input(str, state = %MenuState{}) do
     case str do
       "q" ->
         MenuState.quit("Thanks, see you next time :)")
 
-      str ->
-        raise "Menu does not know how to handle '#{str}'"
+      _str ->
+        MenuState.reprompt_on_invalid_input(
+          "Sorry, I don't recognize that option. Choose from these please:",
+          state
+        )
     end
   end
 
