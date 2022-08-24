@@ -11,6 +11,10 @@ defmodule MyMenu do
 
   # User input.
   @spec input(String.t(), %MenuState{}) :: %MenuState{}
+  def input(_user_input, %MenuState{handler: nil}) do
+    MenuState.new(:conversation_ended_already, "I've got nothing more to say to you.", [], nil)
+  end
+
   def input(user_input, %MenuState{} = state) do
     state.handler.handle_input(user_input, state)
   end
