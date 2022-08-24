@@ -50,10 +50,10 @@ defmodule MyMenuTest do
     assert process_data_text == @process_data_text
     assert process_data_choices == @process_data_choices
 
-    %MenuState{text: process_now_text, choices: process_now_choices, data: nil} =
-      MyMenu.input("1", menu_state)
+    # %MenuState{text: process_now_text, choices: process_now_choices, data: nil} =
+    #   MyMenu.input("1", menu_state)
 
-    assert process_now_text == @process_now_text
-    assert process_now_choices == @home_choices
+    # assert process_now_text == @process_now_text
+    # assert process_now_choices == @home_choices
   end
 end
