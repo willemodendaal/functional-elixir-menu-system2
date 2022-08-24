@@ -9,10 +9,24 @@ defmodule MyMenu do
   end
 
   # User input.
+  @spec input(String.t(), %MenuState{}) :: %MenuState{}
   def input(str, %MenuState{} = state) do
+    handle_input(state.step, str, state)
+  end
+
+  @spec handle_input(any, String.t(), %MenuState{}) :: %MenuState{}
+  defp handle_input(:start, str, state = %MenuState{}) do
     case str do
       "q" ->
         MenuState.quit("Thanks, see you next time :)")
+
+      "1" ->
+        MenuState.new(
+          :process_data,
+          "Process data. Would you like to do so now, or later?",
+          [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}],
+          state.data
+        )
 
       _str ->
         MenuState.reprompt_on_invalid_input(
