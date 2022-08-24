@@ -4,6 +4,9 @@ defmodule MyMenuTest do
   @quit_text "Thanks, see you next time :)"
   @home_choices [{"1", "Process the data"}, {"q", "Quit"}]
 
+  @process_data_text "Process data. Would you like to do so now, or later?"
+  @process_data_choices [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}]
+
   test "Start returns home text and root menu" do
     %MenuState{text: home_text, choices: home_choices, data: _} = MyMenu.start()
 
@@ -34,7 +37,13 @@ defmodule MyMenuTest do
     assert quit_text == @quit_text
   end
 
-  # test "It loads the 'process data' menu" do
-  #   raise "todo test"
-  # end
+  test "It loads the 'process data' menu" do
+    %MenuState{text: _home_text, data: _data} = menu_state = MyMenu.start()
+
+    %MenuState{text: process_data_text, choices: choices, data: nil} =
+      MyMenu.input("1", menu_state)
+
+    assert process_data_text == @process_data_text
+    assert choices == @process_data_choices
+  end
 end

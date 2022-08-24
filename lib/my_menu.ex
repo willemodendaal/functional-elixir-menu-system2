@@ -5,11 +5,11 @@ defmodule MyMenu do
   """
 
   def start() do
-    MenuState.new("CLI Menu v1", start_menu_choices(), nil)
+    MenuState.new(:start, "CLI Menu v1", start_menu_choices(), nil)
   end
 
   # User input.
-  def input(str, state = %MenuState{}) do
+  def input(str, %MenuState{} = state) do
     case str do
       "q" ->
         MenuState.quit("Thanks, see you next time :)")
