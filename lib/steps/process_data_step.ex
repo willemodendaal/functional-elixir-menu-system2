@@ -1,5 +1,7 @@
 defmodule Steps.ProcessDataStep do
   def create(state) do
+    # todo: we want to split imperative and functional logic.
+    # can we do this better?
     result = do_process_now_logic()
 
     MenuState.new(
