@@ -36,7 +36,25 @@ defmodule MyMenu do
     end
   end
 
+  defp handle_input(:process_data, str, state = %MenuState{}) do
+    case str do
+      "1" ->
+        result = do_process_now_logic()
+
+        MenuState.new(
+          :process_now,
+          "Processed OK. Result: #{result}",
+          [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}],
+          state.data
+        )
+    end
+  end
+
   defp start_menu_choices() do
     [{"1", "Process the data"}, {"q", "Quit"}]
+  end
+
+  defp do_process_now_logic() do
+    111
   end
 end
