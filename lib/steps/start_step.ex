@@ -6,7 +6,7 @@ defmodule Steps.StartStep do
 
   @spec create(any) :: %MenuState{}
   def create(prefix_text) do
-    MenuState.new(:start, "#{prefix_text}CLI Menu v1", start_menu_choices(), __MODULE__)
+    MenuState.new(:start, "#{prefix_text}CLI Menu v1", start_menu_choices(), &handle_input/2)
   end
 
   @spec handle_input(String.t(), %MenuState{}) :: %MenuState{}

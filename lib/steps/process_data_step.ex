@@ -4,7 +4,7 @@ defmodule Steps.ProcessDataStep do
       :process_data,
       "Process data. Would you like to do so now, or later?",
       [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}],
-      __MODULE__
+      &handle_input/2
     )
   end
 

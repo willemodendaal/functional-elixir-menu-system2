@@ -18,12 +18,12 @@ defmodule MyMenu do
 
   # User input.
   @spec input(String.t(), %MenuState{}) :: %MenuState{}
-  def input(_user_input, %MenuState{handler: nil}) do
+  def input(_user_input, %MenuState{handler_func: nil}) do
     MenuState.new(:conversation_ended_already, "I've got nothing more to say to you.", [], nil)
   end
 
   def input(user_input, %MenuState{} = state) do
-    # Principle - pass behavior as a function (here encapsulated in state.handler)
-    state.handler.handle_input(user_input, state)
+    # Principle - pass behavior as a function.
+    state.handler_func(user_input, state)
   end
 end

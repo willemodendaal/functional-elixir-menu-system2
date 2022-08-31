@@ -1,8 +1,13 @@
 defmodule MenuState do
-  defstruct [:step, :text, :choices, :handler]
+  defstruct [:step, :text, :choices, :handler_func]
 
-  def new(step, text, choices, handler) when is_binary(text) and is_atom(handler) do
-    %MenuState{step: step, text: text, choices: choices, handler: handler}
+  def new(step, text, choices, nil) when is_binary(text) do
+    %MenuState{step: step, text: text, choices: choices, handler_func: nil}
+  end
+
+  def new(step, text, choices, handler_func)
+      when is_binary(text) and is_function(handler_func, 2) do
+    %MenuState{step: step, text: text, choices: choices, handler_func: handler_func}
   end
 
   def quit(text) when is_binary(text) do
@@ -14,7 +19,7 @@ defmodule MenuState do
       previous_state.step,
       reprompt_text,
       previous_state.choices,
-      previous_state.handler
+      previous_state.handler_func
     )
   end
 end

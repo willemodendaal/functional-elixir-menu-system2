@@ -30,7 +30,7 @@ defmodule MyMenuTest do
   end
 
   test "It handles invalid input" do
-    %MenuState{text: _home_text, handler: _handler} = menu_state = MyMenu.start()
+    menu_state = MyMenu.start()
 
     %MenuState{text: invalid_input_text, choices: invalid_input_choices} =
       menu_state = MyMenu.input("bananas", menu_state)
@@ -46,7 +46,7 @@ defmodule MyMenuTest do
   end
 
   test "It loads the 'process data' menu" do
-    %MenuState{text: _home_text, handler: _handler} = menu_state = MyMenu.start()
+    menu_state = MyMenu.start()
 
     %MenuState{text: process_handler_text, choices: process_handler_choices} =
       MyMenu.input("1", menu_state)
@@ -56,7 +56,7 @@ defmodule MyMenuTest do
   end
 
   test "It loads the 'process data' menu and processes 'now'" do
-    %MenuState{text: _home_text, handler: _handler} = menu_state = MyMenu.start()
+    menu_state = MyMenu.start()
 
     process_data_menu_state = MyMenu.input("1", menu_state)
 
