@@ -24,6 +24,6 @@ defmodule MyMenu do
 
   def input(user_input, %MenuState{} = state) do
     # Principle - pass behavior as a function.
-    state.handler_func(user_input, state)
+    state.handler_func.(user_input, state)
   end
 end
