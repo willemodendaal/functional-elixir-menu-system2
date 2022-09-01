@@ -26,12 +26,12 @@ defmodule MyMenuTest do
 
   test "It can quit" do
     menu_state = MyMenu.start()
-    menu_state = MyMenu.input("q", menu_state)
+    menu_state = MyMenu.input(menu_state, "q")
 
     assert menu_state.text == @quit_text
 
     # No handling of messages after quitting.
-    menu_state = MyMenu.input("123", menu_state)
+    menu_state = MyMenu.input(menu_state, "123")
     assert menu_state.text == "I've got nothing more to say to you."
   end
 
@@ -39,9 +39,9 @@ defmodule MyMenuTest do
     menu_state = MyMenu.start()
 
     %MenuState{text: invalid_input_text, choices: invalid_input_choices} =
-      menu_state = MyMenu.input("bananas", menu_state)
+      menu_state = MyMenu.input(menu_state, "bananas")
 
-    %MenuState{text: quit_text} = MyMenu.input("q", menu_state)
+    %MenuState{text: quit_text} = MyMenu.input(menu_state, "q")
 
     assert invalid_input_text ==
              "Sorry, I don't recognize that option. Choose from these please:"
@@ -55,7 +55,7 @@ defmodule MyMenuTest do
     menu_state = MyMenu.start()
 
     %MenuState{text: process_handler_text, choices: process_handler_choices} =
-      MyMenu.input("1", menu_state)
+      MyMenu.input(menu_state, "1")
 
     assert process_handler_text == @process_handler_text
     assert process_handler_choices == @process_handler_choices
@@ -63,27 +63,31 @@ defmodule MyMenuTest do
 
   test "It loads the 'process data' menu and processes 'now'" do
     process_data_menu_state = start_and_launch_process_menu()
-    process_now_menu_state = MyMenu.input("1", process_data_menu_state)
+    process_now_menu_state = MyMenu.input(process_data_menu_state, "1")
 
     assert process_now_menu_state.text == @process_now_text
     assert process_now_menu_state.choices == @home_choices
   end
 
   test "It allows cancelling of the 'process' menu." do
-    process_data_menu_state = start_and_launch_process_menu()
-
-    cancelled_process_menu_state = MyMenu.input("3", process_data_menu_state)
+    cancelled_process_menu_state =
+      start_and_launch_process_menu()
+      |> MyMenu.input("3")
 
     assert cancelled_process_menu_state.text == @cancelled_process_text
     assert cancelled_process_menu_state.choices == @home_choices
   end
 
   test "It allows number entry on 2nd 'process data' option." do
+    process_data_menu_state = start_and_launch_process_menu()
+
+    custom_data_menu_state = MyMenu.input(process_data_menu_state, "2")
   end
 
   defp start_and_launch_process_menu() do
-    menu_state = MyMenu.start()
-    process_data_menu_state = MyMenu.input("1", menu_state)
+    process_data_menu_state =
+      MyMenu.start()
+      |> MyMenu.input("1")
 
     assert process_data_menu_state.text == @process_handler_text
     assert process_data_menu_state.choices == @process_handler_choices
