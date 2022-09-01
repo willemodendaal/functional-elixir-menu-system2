@@ -20,74 +20,74 @@ defmodule MyMenuTest do
 
   test "Start returns home text and root menu" do
     MyMenu.start()
-    |> assert_menu_prompt(@home_text)
-    |> assert_menu_choices(@home_choices)
+    |> assert_response_text(@home_text)
+    |> assert_response_choices(@home_choices)
   end
 
   test "It can quit" do
     MyMenu.start()
     |> MyMenu.input("q")
-    |> assert_menu_prompt(@quit_text)
+    |> assert_response_text(@quit_text)
     |> MyMenu.input("this should not be handled")
-    |> assert_menu_prompt("I've got nothing more to say to you.")
+    |> assert_response_text("I've got nothing more to say to you.")
   end
 
   test "It handles invalid input" do
     MyMenu.start()
     |> MyMenu.input("bananas")
-    |> assert_menu_prompt("Sorry, I don't recognize that option. Choose from these please:")
+    |> assert_response_text("Sorry, I don't recognize that option. Choose from these please:")
     |> MyMenu.input("q")
-    |> assert_menu_prompt(@quit_text)
+    |> assert_response_text(@quit_text)
   end
 
   test "It loads the 'process data' menu" do
     MyMenu.start()
     |> MyMenu.input("1")
-    |> assert_menu_prompt(@process_handler_text)
-    |> assert_menu_choices(@process_handler_choices)
+    |> assert_response_text(@process_handler_text)
+    |> assert_response_choices(@process_handler_choices)
   end
 
   test "It loads the 'process data' menu and processes 'now'" do
     start_and_launch_process_menu()
     |> MyMenu.input("1")
-    |> assert_menu_prompt(expected_process_now_text(111, @home_text))
-    |> assert_menu_choices(@home_choices)
+    |> assert_response_text(expected_process_now_text(111, @home_text))
+    |> assert_response_choices(@home_choices)
   end
 
   test "It allows cancelling of the 'process' menu." do
     start_and_launch_process_menu()
     |> MyMenu.input("3")
-    |> assert_menu_prompt(@cancelled_process_text)
-    |> assert_menu_choices(@home_choices)
+    |> assert_response_text(@cancelled_process_text)
+    |> assert_response_choices(@home_choices)
   end
 
   test "It allows arbitrary data entry on 2nd 'process data' option." do
     start_and_launch_process_menu()
     |> MyMenu.input("2")
-    |> assert_menu_prompt(@custom_data_prompt_text)
+    |> assert_response_text(@custom_data_prompt_text)
     |> MyMenu.input("some custom user-entered data")
-    |> assert_menu_prompt(
+    |> assert_response_text(
       expected_process_now_text("some custom user-entered data", @process_handler_text)
     )
     |> MyMenu.input("3")
-    |> assert_menu_prompt(@cancelled_process_text)
-    |> assert_menu_choices(@home_choices)
+    |> assert_response_text(@cancelled_process_text)
+    |> assert_response_choices(@home_choices)
   end
 
   defp start_and_launch_process_menu() do
     MyMenu.start()
     |> MyMenu.input("1")
-    |> assert_menu_prompt(@process_handler_text)
-    |> assert_menu_choices(@process_handler_choices)
+    |> assert_response_text(@process_handler_text)
+    |> assert_response_choices(@process_handler_choices)
   end
 
-  defp assert_menu_prompt(state = %MenuState{}, expected_prompt) do
+  defp assert_response_text(state = %MenuState{}, expected_prompt) do
     assert state.text == expected_prompt
 
     state
   end
 
-  defp assert_menu_choices(state = %MenuState{}, expected_choices) do
+  defp assert_response_choices(state = %MenuState{}, expected_choices) do
     assert state.choices == expected_choices
 
     state
