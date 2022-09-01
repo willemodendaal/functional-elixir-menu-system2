@@ -3,7 +3,7 @@ defmodule Steps.ProcessDataStep do
     MenuState.new(
       :process_data,
       "Process data. Would you like to do so now, or later?",
-      [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}],
+      [{"1", "Process now"}, {"2", "Process a custom value"}, {"3", "Cancel"}],
       &handle_input/2
     )
   end
@@ -23,6 +23,9 @@ defmodule Steps.ProcessDataStep do
 
       "2" ->
         raise "not implemented yet"
+
+      "3" ->
+        Steps.StartStep.create("Fine. Taking you back to the start.\n\n")
 
       _str ->
         # todo - Can we make this reusable somehow?

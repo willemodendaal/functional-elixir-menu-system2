@@ -5,11 +5,17 @@ defmodule MyMenuTest do
   @home_choices [{"1", "Process the data"}, {"q", "Quit"}]
 
   @process_handler_text "Process data. Would you like to do so now, or later?"
-  @process_handler_choices [{"1", "Process now"}, {"2", "Process later"}, {"3", "Cancel"}]
+  @process_handler_choices [
+    {"1", "Process now"},
+    {"2", "Process a custom value"},
+    {"3", "Cancel"}
+  ]
 
   @quit_text "Thanks, see you next time :)"
 
   @process_now_text "Processed OK(111).\n\n" <> @home_text
+
+  @cancelled_process_text "Fine. Taking you back to the start.\n\n" <> @home_text
 
   test "Start returns home text and root menu" do
     menu_state = MyMenu.start()
@@ -57,7 +63,6 @@ defmodule MyMenuTest do
 
   test "It loads the 'process data' menu and processes 'now'" do
     menu_state = MyMenu.start()
-
     process_data_menu_state = MyMenu.input("1", menu_state)
 
     assert process_data_menu_state.text == @process_handler_text
@@ -67,5 +72,19 @@ defmodule MyMenuTest do
 
     assert process_now_menu_state.text == @process_now_text
     assert process_now_menu_state.choices == @home_choices
+  end
+
+  test "It allows cancelling of the 'process' menu." do
+    menu_state = MyMenu.start()
+    process_data_menu_state = MyMenu.input("1", menu_state)
+    assert process_data_menu_state.text == @process_handler_text
+
+    cancelled_process_menu_state = MyMenu.input("3", process_data_menu_state)
+
+    assert cancelled_process_menu_state.text == @cancelled_process_text
+    assert cancelled_process_menu_state.choices == @home_choices
+  end
+
+  test "It allows number entry on 2nd 'process data' option." do
   end
 end
