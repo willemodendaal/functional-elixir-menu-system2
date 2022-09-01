@@ -1,7 +1,7 @@
 {
 	"files": [
 		{
-			"path": "lib/my_menu.ex",
+			"path": "lib/steps/process_data_step.ex",
 			"bookmarks": [
 				{
 					"line": -1,
@@ -12,8 +12,8 @@
 					"column": 0
 				},
 				{
-					"line": 15,
-					"column": 5
+					"line": 48,
+					"column": 10
 				},
 				{
 					"line": -1,
@@ -46,15 +46,15 @@
 			]
 		},
 		{
-			"path": "test/my_menu_test.exs",
+			"path": "lib/steps/reusable/plain_text_entry_step.ex",
 			"bookmarks": [
 				{
 					"line": -1,
 					"column": 0
 				},
 				{
-					"line": 86,
-					"column": 27
+					"line": 0,
+					"column": 43
 				},
 				{
 					"line": -1,

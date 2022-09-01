@@ -4,7 +4,7 @@ defmodule MyMenuTest do
   @home_text "CLI Menu v1"
   @home_choices [{"1", "Process the data"}, {"q", "Quit"}]
 
-  @process_handler_text "Process data. Would you like to do so now, or later?"
+  @process_handler_text "Process data. Would you like to process the default value, or a custom value?"
   @process_handler_choices [
     {"1", "Process now"},
     {"2", "Process a custom value"},
@@ -12,8 +12,6 @@ defmodule MyMenuTest do
   ]
 
   @quit_text "Thanks, see you next time :)"
-
-  @process_now_text "Processed OK(111).\n\n" <> @home_text
 
   @cancelled_process_text "Fine. Taking you back to the start.\n\n" <> @home_text
 
@@ -67,7 +65,7 @@ defmodule MyMenuTest do
     process_data_menu_state = start_and_launch_process_menu()
     process_now_menu_state = MyMenu.input(process_data_menu_state, "1")
 
-    assert process_now_menu_state.text == @process_now_text
+    assert process_now_menu_state.text == expected_process_now_text(111, @home_text)
     assert process_now_menu_state.choices == @home_choices
   end
 
@@ -85,7 +83,13 @@ defmodule MyMenuTest do
       start_and_launch_process_menu()
       |> MyMenu.input("2")
       |> assert_menu_prompt(@custom_data_prompt_text)
-      |> MyMenu.input()
+      |> MyMenu.input("some custom user-entered data")
+      |> assert_menu_prompt(
+        expected_process_now_text("some custom user-entered data", @process_handler_text)
+      )
+      |> MyMenu.input("3")
+      |> assert_menu_prompt(@cancelled_process_text)
+      |> assert_menu_choices(@home_choices)
   end
 
   defp start_and_launch_process_menu() do
@@ -103,5 +107,15 @@ defmodule MyMenuTest do
     assert state.text == expected_prompt
 
     state
+  end
+
+  defp assert_menu_choices(state = %MenuState{}, expected_choices) do
+    assert state.choices == expected_choices
+
+    state
+  end
+
+  defp expected_process_now_text(data, suffix_text) do
+    "Processed OK(#{data}).\n\n" <> suffix_text
   end
 end

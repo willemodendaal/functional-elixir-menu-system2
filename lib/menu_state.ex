@@ -22,4 +22,13 @@ defmodule MenuState do
       previous_state.handler_func
     )
   end
+
+  def prompt_plain_text_input(prompt_text, previous_state = %MenuState{}) do
+    MenuState.new(
+      previous_state.step,
+      prompt_text,
+      [],
+      previous_state.handler_func
+    )
+  end
 end

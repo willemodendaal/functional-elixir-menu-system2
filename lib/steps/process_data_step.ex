@@ -1,8 +1,9 @@
 defmodule Steps.ProcessDataStep do
-  def create() do
+  def create(prefix_text \\ "") do
     MenuState.new(
       :process_data,
-      "Process data. Would you like to do so now, or later?",
+      prefix_text <>
+        "Process data. Would you like to process the default value, or a custom value?",
       [{"1", "Process now"}, {"2", "Process a custom value"}, {"3", "Cancel"}],
       &handle_input/2
     )
@@ -18,15 +19,30 @@ defmodule Steps.ProcessDataStep do
 
         # Do what this step needs to do.
         # Generate prefix text and return the "Start" step (with prefix text)
-        result = do_process_now_logic()
+        result = do_process_now_logic(111)
 
         Steps.StartStep.create("Processed OK(#{result}).\n\n")
 
       "2" ->
-        MenuState.prompt_plain_text_input(
+        MenuState.new(
+          :process_data_custom_data_entry,
           "Please type the custom data that you would like to process:",
-          state
+          [],
+          fn input, _state ->
+            # todo: Consider how we can enhance plain text input to allow:application
+            # - validation
+            # - cancelling
+
+            # Process, show success, and prompt again at the **Process menu**.
+            result = do_process_now_logic(input)
+            Steps.ProcessDataStep.create("Processed OK(#{result}).\n\n")
+          end
         )
+
+      # MenuState.prompt_plain_text_input(
+      #   "Please type the custom data that you would like to process:",
+      #   state
+      # )
 
       "3" ->
         # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?
@@ -41,7 +57,9 @@ defmodule Steps.ProcessDataStep do
     end
   end
 
-  defp do_process_now_logic() do
-    111
+  defp do_process_now_logic(data_to_process) do
+    # todo: Consider what to do with IO and 'side effect' logic here.
+    # Custom data will likely go to a database.
+    data_to_process
   end
 end
