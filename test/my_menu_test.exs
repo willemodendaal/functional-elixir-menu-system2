@@ -62,12 +62,7 @@ defmodule MyMenuTest do
   end
 
   test "It loads the 'process data' menu and processes 'now'" do
-    menu_state = MyMenu.start()
-    process_data_menu_state = MyMenu.input("1", menu_state)
-
-    assert process_data_menu_state.text == @process_handler_text
-    assert process_data_menu_state.choices == @process_handler_choices
-
+    process_data_menu_state = start_and_launch_process_menu()
     process_now_menu_state = MyMenu.input("1", process_data_menu_state)
 
     assert process_now_menu_state.text == @process_now_text
@@ -75,9 +70,7 @@ defmodule MyMenuTest do
   end
 
   test "It allows cancelling of the 'process' menu." do
-    menu_state = MyMenu.start()
-    process_data_menu_state = MyMenu.input("1", menu_state)
-    assert process_data_menu_state.text == @process_handler_text
+    process_data_menu_state = start_and_launch_process_menu()
 
     cancelled_process_menu_state = MyMenu.input("3", process_data_menu_state)
 
@@ -86,5 +79,15 @@ defmodule MyMenuTest do
   end
 
   test "It allows number entry on 2nd 'process data' option." do
+  end
+
+  defp start_and_launch_process_menu() do
+    menu_state = MyMenu.start()
+    process_data_menu_state = MyMenu.input("1", menu_state)
+
+    assert process_data_menu_state.text == @process_handler_text
+    assert process_data_menu_state.choices == @process_handler_choices
+
+    process_data_menu_state
   end
 end
