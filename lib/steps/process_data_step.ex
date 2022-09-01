@@ -25,6 +25,7 @@ defmodule Steps.ProcessDataStep do
         raise "not implemented yet"
 
       "3" ->
+        # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?
         Steps.StartStep.create("Fine. Taking you back to the start.\n\n")
 
       _str ->
