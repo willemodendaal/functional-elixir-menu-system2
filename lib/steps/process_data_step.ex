@@ -14,6 +14,7 @@ defmodule Steps.ProcessDataStep do
       "1" ->
         # todo: Apply functional patterns here.
         # 'do_logic' functions like below will usually have some impure logic in them.
+        # How do we keep that logic separate from this functional code? (Functional core/Imperative shell)
 
         # Do what this step needs to do.
         # Generate prefix text and return the "Start" step (with prefix text)
@@ -22,7 +23,10 @@ defmodule Steps.ProcessDataStep do
         Steps.StartStep.create("Processed OK(#{result}).\n\n")
 
       "2" ->
-        raise "not implemented yet"
+        MenuState.prompt_plain_text_input(
+          "Please type the custom data that you would like to process:",
+          state
+        )
 
       "3" ->
         # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?

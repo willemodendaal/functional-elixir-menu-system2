@@ -17,6 +17,8 @@ defmodule MyMenuTest do
 
   @cancelled_process_text "Fine. Taking you back to the start.\n\n" <> @home_text
 
+  @custom_data_prompt_text "Please type the custom data that you would like to process:"
+
   test "Start returns home text and root menu" do
     menu_state = MyMenu.start()
 
@@ -78,10 +80,12 @@ defmodule MyMenuTest do
     assert cancelled_process_menu_state.choices == @home_choices
   end
 
-  test "It allows number entry on 2nd 'process data' option." do
-    process_data_menu_state = start_and_launch_process_menu()
-
-    custom_data_menu_state = MyMenu.input(process_data_menu_state, "2")
+  test "It allows arbitrary data entry on 2nd 'process data' option." do
+    custom_data_menu_state =
+      start_and_launch_process_menu()
+      |> MyMenu.input("2")
+      |> assert_menu_prompt(@custom_data_prompt_text)
+      |> MyMenu.input()
   end
 
   defp start_and_launch_process_menu() do
@@ -93,5 +97,11 @@ defmodule MyMenuTest do
     assert process_data_menu_state.choices == @process_handler_choices
 
     process_data_menu_state
+  end
+
+  defp assert_menu_prompt(state = %MenuState{}, expected_prompt) do
+    assert state.text == expected_prompt
+
+    state
   end
 end
