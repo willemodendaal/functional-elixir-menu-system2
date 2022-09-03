@@ -1,50 +1,24 @@
 defmodule Steps.Reusable.GetPlainTextInput do
-  def create(prompt) do
+  def create(prompt, callback_handler) when is_function(callback_handler) do
     MenuState.new(
       :get_plain_text_input,
       prompt,
       [],
-      &handle_input/2
+      fn input, _state ->
+        handle_custom_data_text(input, callback_handler)
+      end
     )
   end
 
-  @spec handle_input(String.t(), %MenuState{}) ::
-          {:handled, %MenuState{}} | {:unhandled} | {:cancelled, %MenuState{}}
-  def handle_input(input, state = %MenuState{}) do
-    case input do
-      "" ->
-        # We assume empty string means 'cancel'.
-        # Caller must handle.
-        {:cancelled, state}
-
-      input ->
-        MenuState.new(
-          :process_data_custom_data_entry,
-          "Please type the custom data that you would like to process:",
-          [],
-          &handle_custom_data_text/2
-        )
-
-      "3" ->
-        # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?
-        Steps.StartStep.create("Fine. Taking you back to the start.\n\n")
-
-      _ ->
-        # We don't know how to handle this.
-        nil
-    end
-  end
-
-  @spec handle_custom_data_text(String.t(), %MenuState{}) ::
-          {:handled, %MenuState{}} | {:unhandled}
-  def handle_custom_data_text(custom_text_input, _state) do
+  @spec handle_custom_data_text(String.t(), fun()) :: %MenuState{}
+  def handle_custom_data_text(custom_text_input, callback_handler) do
     # todo: Consider how we can enhance plain text input to allow:
     # - validation
     # - cancelling
 
     case custom_text_input do
       "" ->
-        {:handled, Steps.ProcessDataStep.create("Cancelled.\n\n")}
+        callback_handler(MenuState.new(1111)
 
       custom_text_input ->
         # Process, show success, and prompt again at the **Process menu**.
