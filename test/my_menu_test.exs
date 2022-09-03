@@ -36,8 +36,10 @@ defmodule MyMenuTest do
     MyMenu.start()
     |> MyMenu.input("bananas")
     |> assert_response_text("Sorry, I don't recognize that option. Choose from these please:")
-    |> MyMenu.input("q")
-    |> assert_response_text(@quit_text)
+    |> MyMenu.input("naartjies?")
+    |> assert_response_text("Sorry, I don't recognize that option. Choose from these please:")
+    |> MyMenu.input("1")
+    |> assert_response_text(@process_handler_text)
   end
 
   test "It loads the 'process data' menu" do

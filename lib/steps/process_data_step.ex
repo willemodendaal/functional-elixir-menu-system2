@@ -49,9 +49,10 @@ defmodule Steps.ProcessDataStep do
     end
   end
 
-  @spec handle_input(String.t(), %MenuState{}) :: {:handled, %MenuState{}} | {:unhandled}
+  @spec handle_custom_data_text(String.t(), %MenuState{}) ::
+          {:handled, %MenuState{}} | {:unhandled}
   def handle_custom_data_text(custom_text_input, _state) do
-    # todo: Consider how we can enhance plain text input to allow:application
+    # todo: Consider how we can enhance plain text input to allow:
     # - validation
     # - cancelling
 
