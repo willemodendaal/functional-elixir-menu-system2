@@ -24,6 +24,17 @@ defmodule MyMenu do
 
   def input(%MenuState{} = state, user_input) do
     # Principle - pass behavior as a function.
-    state.handler_func.(user_input, state)
+    case state.handler_func.(user_input, state) do
+      {:handled, new_state} ->
+        # The step handled the input.
+        new_state
+
+      {:unhandled} ->
+        # The step didn't recognize the input. Prompt again.
+        MenuState.reprompt_on_invalid_input(
+          "Sorry, I don't recognize that option. Choose from these please:",
+          state
+        )
+    end
   end
 end

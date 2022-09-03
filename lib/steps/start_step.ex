@@ -9,8 +9,16 @@ defmodule Steps.StartStep do
     MenuState.new(:start, "#{prefix_text}CLI Menu v1", start_menu_choices(), &handle_input/2)
   end
 
-  @spec handle_input(String.t(), %MenuState{}) :: %MenuState{}
+  @spec handle_input(String.t(), %MenuState{}) :: {:handled, %MenuState{}} | {:unhandled}
   def handle_input(input, state = %MenuState{}) do
+    case handle(input, state) do
+      nil -> {:unhandled}
+      state -> {:handled, state}
+    end
+  end
+
+  @spec handle(String.t(), %MenuState{}) :: %MenuState{} | nil
+  defp handle(input, _state = %MenuState{}) do
     case input do
       "q" ->
         MenuState.quit("Thanks, see you next time :)")
@@ -19,11 +27,7 @@ defmodule Steps.StartStep do
         Steps.ProcessDataStep.create()
 
       _str ->
-        # todo - Can we make this reusable somehow?
-        MenuState.reprompt_on_invalid_input(
-          "Sorry, I don't recognize that option. Choose from these please:",
-          state
-        )
+        nil
     end
   end
 

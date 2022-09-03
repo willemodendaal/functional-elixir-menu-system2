@@ -9,8 +9,16 @@ defmodule Steps.ProcessDataStep do
     )
   end
 
-  @spec handle_input(String.t(), %MenuState{}) :: %MenuState{}
+  @spec handle_input(String.t(), %MenuState{}) :: {:handled, %MenuState{}} | {:unhandled}
   def handle_input(input, state = %MenuState{}) do
+    case handle(input, state) do
+      nil -> {:unhandled}
+      state -> {:handled, state}
+    end
+  end
+
+  @spec handle(String.t(), %MenuState{}) :: %MenuState{} | nil
+  defp handle(input, _state = %MenuState{}) do
     case input do
       "1" ->
         # todo: Apply functional patterns here.
@@ -35,15 +43,13 @@ defmodule Steps.ProcessDataStep do
         # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?
         Steps.StartStep.create("Fine. Taking you back to the start.\n\n")
 
-      _str ->
-        # todo - Can we make this reusable somehow?
-        MenuState.reprompt_on_invalid_input(
-          "Sorry, I don't recognize that option. Choose from these please:",
-          state
-        )
+      _ ->
+        # We don't know how to handle this.
+        nil
     end
   end
 
+  @spec handle_input(String.t(), %MenuState{}) :: {:handled, %MenuState{}} | {:unhandled}
   def handle_custom_data_text(custom_text_input, _state) do
     # todo: Consider how we can enhance plain text input to allow:application
     # - validation
@@ -51,12 +57,12 @@ defmodule Steps.ProcessDataStep do
 
     case custom_text_input do
       "" ->
-        Steps.ProcessDataStep.create("Cancelled.\n\n")
+        {:handled, Steps.ProcessDataStep.create("Cancelled.\n\n")}
 
       custom_text_input ->
         # Process, show success, and prompt again at the **Process menu**.
         result = do_process_now_logic(custom_text_input)
-        Steps.ProcessDataStep.create("Processed OK(#{result}).\n\n")
+        {:handled, Steps.ProcessDataStep.create("Processed OK(#{result}).\n\n")}
     end
   end
 
