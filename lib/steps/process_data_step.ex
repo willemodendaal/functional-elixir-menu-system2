@@ -34,10 +34,11 @@ defmodule Steps.ProcessDataStep do
         Steps.StartStep.create("Processed OK(#{result}).\n\n")
 
       "2" ->
-        GetPlainTextInput.create(
-          "Please type the custom data that you would like to process:",
-          &handle_custom_data_text/2
-        )
+        # "Please type the custom data that you would like to process:",
+        # The menu is:
+        # - Input and state passed to handlers, that return new state, that gets rendered.
+        # You need state to render. So text input needs rendering...
+        raise "todo"
 
       "3" ->
         # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?

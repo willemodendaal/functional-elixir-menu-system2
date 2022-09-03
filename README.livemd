@@ -1,0 +1,24 @@
+<!-- livebook:{"autosave_interval_s":600,"persist_outputs":true} -->
+
+# Building menus
+
+## MenuState
+
+We want to keep the core menu as Functional as possible. That means we need to pass around menu state, and that's done with the `MenuState` struct.
+
+For example, like returned by `MyMenu.start()` below:
+
+```elixir
+MyMenu.start()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :start,
+  text: "CLI Menu v1",
+  choices: [{"1", "Process the data"}, {"q", "Quit"}],
+  handler_func: #Function<0.24463043/2 in Steps.StartStep.handle_input>
+}
+```
