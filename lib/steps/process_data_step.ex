@@ -28,21 +28,22 @@ defmodule Steps.ProcessDataStep do
           :process_data_custom_data_entry,
           "Please type the custom data that you would like to process:",
           [],
-          fn input, _state ->
+          fn custom_text_input, _state ->
             # todo: Consider how we can enhance plain text input to allow:application
             # - validation
             # - cancelling
 
-            # Process, show success, and prompt again at the **Process menu**.
-            result = do_process_now_logic(input)
-            Steps.ProcessDataStep.create("Processed OK(#{result}).\n\n")
+            case custom_text_input do
+              "" ->
+                Steps.ProcessDataStep.create("Cancelled.\n\n")
+
+              custom_text_input ->
+                # Process, show success, and prompt again at the **Process menu**.
+                result = do_process_now_logic(custom_text_input)
+                Steps.ProcessDataStep.create("Processed OK(#{result}).\n\n")
+            end
           end
         )
-
-      # MenuState.prompt_plain_text_input(
-      #   "Please type the custom data that you would like to process:",
-      #   state
-      # )
 
       "3" ->
         # todo: "Cancel" seems like a common step. Can we add this logic with an import/use/require?

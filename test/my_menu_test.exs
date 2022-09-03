@@ -48,23 +48,21 @@ defmodule MyMenuTest do
   end
 
   test "It loads the 'process data' menu and processes 'now'" do
-    start_and_launch_process_menu()
+    go_to_process_menu()
     |> MyMenu.input("1")
     |> assert_response_text(expected_process_now_text(111, @home_text))
     |> assert_response_choices(@home_choices)
   end
 
   test "It allows cancelling of the 'process' menu." do
-    start_and_launch_process_menu()
+    go_to_process_menu()
     |> MyMenu.input("3")
     |> assert_response_text(@cancelled_process_text)
     |> assert_response_choices(@home_choices)
   end
 
   test "It allows arbitrary data entry on 2nd 'process data' option." do
-    start_and_launch_process_menu()
-    |> MyMenu.input("2")
-    |> assert_response_text(@custom_data_prompt_text)
+    go_to_process_menu("2")
     |> MyMenu.input("some custom user-entered data")
     |> assert_response_text(
       expected_process_now_text("some custom user-entered data", @process_handler_text)
@@ -74,7 +72,26 @@ defmodule MyMenuTest do
     |> assert_response_choices(@home_choices)
   end
 
-  defp start_and_launch_process_menu() do
+  test "It allows cancelling out of arbitrary data entry (by submitting an empty value)." do
+    go_to_process_menu("2")
+    |> MyMenu.input("")
+    |> assert_response_text("Cancelled.\n\n" <> @process_handler_text)
+    |> assert_response_choices(@process_handler_choices)
+  end
+
+  defp go_to_process_menu("2") do
+    # "2" is the custom data prompt section.
+    go_to_process_menu()
+    |> MyMenu.input("2")
+    |> assert_response_text(@custom_data_prompt_text)
+  end
+
+  defp go_to_process_menu(choice) do
+    go_to_process_menu()
+    |> MyMenu.input(choice)
+  end
+
+  defp go_to_process_menu() do
     MyMenu.start()
     |> MyMenu.input("1")
     |> assert_response_text(@process_handler_text)
