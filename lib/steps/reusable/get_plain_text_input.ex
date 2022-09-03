@@ -1,41 +1,27 @@
-defmodule Steps.ProcessDataStep do
-  alias Steps.Reusable.GetPlainTextInput
-
-  def create(prefix_text \\ "") do
+defmodule Steps.Reusable.GetPlainTextInput do
+  def create(prompt) do
     MenuState.new(
-      :process_data,
-      prefix_text <>
-        "Process data. Would you like to process the default value, or a custom value?",
-      [{"1", "Process now"}, {"2", "Process a custom value"}, {"3", "Cancel"}],
+      :get_plain_text_input,
+      prompt,
+      [],
       &handle_input/2
     )
   end
 
-  @spec handle_input(String.t(), %MenuState{}) :: {:handled, %MenuState{}} | {:unhandled}
+  @spec handle_input(String.t(), %MenuState{}) ::
+          {:handled, %MenuState{}} | {:unhandled} | {:cancelled, %MenuState{}}
   def handle_input(input, state = %MenuState{}) do
-    case handle(input, state) do
-      nil -> {:unhandled}
-      state -> {:handled, state}
-    end
-  end
-
-  @spec handle(String.t(), %MenuState{}) :: %MenuState{} | nil
-  defp handle(input, _state = %MenuState{}) do
     case input do
-      "1" ->
-        # todo: Apply functional patterns here.
-        # 'do_logic' functions like below will usually have some impure logic in them.
-        # How do we keep that logic separate from this functional code? (Functional core/Imperative shell)
+      "" ->
+        # We assume empty string means 'cancel'.
+        # Caller must handle.
+        {:cancelled, state}
 
-        # Do what this step needs to do.
-        # Generate prefix text and return the "Start" step (with prefix text)
-        result = do_process_now_logic(111)
-
-        Steps.StartStep.create("Processed OK(#{result}).\n\n")
-
-      "2" ->
-        GetPlainTextInput.create(
+      input ->
+        MenuState.new(
+          :process_data_custom_data_entry,
           "Please type the custom data that you would like to process:",
+          [],
           &handle_custom_data_text/2
         )
 
