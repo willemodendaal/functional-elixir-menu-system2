@@ -4,12 +4,12 @@
 
 ## MenuState
 
-We want to keep the core menu as Functional as possible. That means we need to pass around menu state, and that's done with the `MenuState` struct.
+We want to keep the core menu logic as Functional as possible. That means we need to pass around menu state, and that's done with the `MenuState` struct.
 
-For example, like returned by `MyMenu.start()` below:
+For example, like returned by `Menu.start()` below:
 
 ```elixir
-MyMenu.start()
+Menu.start()
 ```
 
 <!-- livebook:{"output":true} -->

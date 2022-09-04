@@ -1,4 +1,4 @@
-defmodule MyMenu do
+defmodule Menu do
   @moduledoc """
   The goal with this module is to keep it purely functional.
   But with state-machine-like logic (except the state always gets passed in and out)
