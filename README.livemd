@@ -1,10 +1,14 @@
 <!-- livebook:{"autosave_interval_s":600,"persist_outputs":true} -->
 
-# Building menus
+# A funtional menu system
 
-## MenuState
+## Goal:
 
-We want to keep the core menu logic as Functional as possible. That means we need to pass around menu state, and that's done with the `MenuState` struct.
+A text-based menu system that can be used by different "front-ends", eg. the Terminal/CLI, a Chatbot (eg. Messenger, Whatsapp), etc.
+
+<!-- livebook:{"break_markdown":true} -->
+
+We also want to keep the core menu logic as Functional as possible. That means we need to pass around menu state somehow. We do that with the `MenuState` struct.
 
 For example, like returned by `Menu.start()` below:
 
@@ -20,5 +24,224 @@ Menu.start()
   text: "CLI Menu v1",
   choices: [{"1", "Process the data"}, {"q", "Quit"}],
   handler_func: #Function<0.24463043/2 in Steps.StartStep.handle_input>
+}
+```
+
+## Interacting with the menu:
+
+Callers interact with the Menu in only one way, and we want to keep it this simple:
+
+* Generate the `MenuState` with Menu.start(),
+* And from there, only call the `Menu.input(user_text, state) :: %MenuState{}` function.
+
+So calls to the menu system look as follows:
+
+```elixir
+state = Menu.start()
+# The user chose option "1" on the main menu.
+state = Menu.input(state, "1")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :process_data,
+  text: "Process data. Would you like to process the default value, or a custom value?",
+  choices: [{"1", "Process now"}, {"2", "Process a custom value"}, {"3", "Cancel"}],
+  handler_func: #Function<0.58722606/2 in Steps.ProcessDataStep.handle_input>
+}
+```
+
+^ The user launched the main menu, and chose option "1", which took them to the "Process data" sub menu.
+
+From here the user chooses option "3":
+
+```elixir
+# continued from above...
+# "3" means 'cancel out of the sub menu'
+state = Menu.input(state, "3")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :start,
+  text: "Fine. Taking you back to the start.\n\nCLI Menu v1",
+  choices: [{"1", "Process the data"}, {"q", "Quit"}],
+  handler_func: #Function<0.24463043/2 in Steps.StartStep.handle_input>
+}
+```
+
+Notice how the interaction with the menu system is exclusively via the `Menu.input(state, text)` function.
+
+## How the menu system works behind the scenes:
+
+**Important constraint**: The caller (eg CLI/Chatbot) should not be aware of any of this logic. The caller should only know about the simple `Menu.start/1` and `Menu.input/2` interface
+
+<!-- livebook:{"break_markdown":true} -->
+
+"Menus" are represented by "Steps". A Step is a module that contains the logic to drive a particular menu (eg. the "Main" menu, or the "Process" menu).
+
+For example, let's create a "Step". This step accepts two options:
+
+```elixir
+defmodule FancyStep do
+  def create() do
+    MenuState.new(
+      # Any descriptive atom name is fine. Useful for debugging.
+      :fancy_step,
+      "Fancy menu, choose one of these options please:",
+      [
+        {"1", "Give me a compliment"},
+        {"2", "Give me a criticism"}
+      ],
+      # Which function should handle the user's response?
+      &handle_user_text_input/2
+    )
+  end
+
+  defp handle_user_text_input(_input_text, _current_state) do
+    {:handled, MenuState.new(:todo, "todo", nil, nil)}
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, FancyStep, <<70, 79, 82, 49, 0, 0, 7, ...>>, {:handle_user_text_input, 2}}
+```
+
+We can create this step: (usually the first step is created by Menu.start())
+
+```elixir
+state = FancyStep.create()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :fancy_step,
+  text: "Fancy menu, choose one of these options please:",
+  choices: [{"1", "Give me a compliment"}, {"2", "Give me a criticism"}],
+  handler_func: #Function<0.42920885/2 in FancyStep.handle_user_text_input>
+}
+```
+
+The caller would render the above state for the user somehow (eg. IO.put(s) for the text and choices).
+Get the user input (eg. IO.gets) and then send that state to the menu system to be handled:
+
+```elixir
+new_state = Menu.input(state, "1")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{step: :todo, text: "todo", choices: nil, handler_func: nil}
+```
+
+^ The user's input doesn't do anything useful yet. So let's change the `handle_user_text_input` function to handle the user's input:
+
+```elixir
+defmodule FancyStep do
+  def create() do
+    MenuState.new(
+      # Any descriptive atom name is fine. Useful for debugging.
+      :fancy_step,
+      "Fancy menu, choose one of these options please:",
+      [
+        {"1", "Give me a compliment"},
+        {"2", "Give me a criticism"}
+      ],
+      # Which function should handle the user's response?
+      &handle_user_text_input/2
+    )
+  end
+
+  defp handle_user_text_input(input_text, _current_state) do
+    case input_text do
+      "1" ->
+        # We've got a lot of flexibility here. In this case we will return a compliment,
+        # along with the original choices, so the user "stays" in this particular menu/step.
+        {:handled,
+         MenuState.new(
+           :fancy_step,
+           "Hello gorgeous!\n\nFancy menu, choose one of these options please:",
+           [
+             {"1", "Give me a compliment"},
+             {"2", "Give me a criticism"}
+           ],
+           # Notice how we specify that the user input will 
+           &handle_user_text_input/2
+         )}
+
+      # be handled by this same function again.
+      "2" ->
+        # Here we do the same for a criticism. Naturally these strings should be
+        # fetched from a central place, so they aren't copy/pasted all over the place.
+        {:handled,
+         MenuState.new(
+           :fancy_step,
+           "Hello Ugly!\n\nFancy menu, choose one of these options please:",
+           [
+             {"1", "Give me a compliment"},
+             {"2", "Give me a criticism"}
+           ],
+           &handle_user_text_input/2
+         )}
+    end
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, FancyStep, <<70, 79, 82, 49, 0, 0, 8, ...>>, {:handle_user_text_input, 2}}
+```
+
+Let's call this step again with a user choice and see what we get back:
+
+```elixir
+FancyStep.create()
+# We can use the pipe operator, because `state` is the first parameter.
+|> Menu.input("2")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :fancy_step,
+  text: "Hello Ugly!\n\nFancy menu, choose one of these options please:",
+  choices: [{"1", "Give me a compliment"}, {"2", "Give me a criticism"}],
+  handler_func: #Function<0.30219454/2 in FancyStep.handle_user_text_input>
+}
+```
+
+Let's get a compliment rather, we're still waiting for input in the same step (FancyStep):
+
+```elixir
+FancyStep.create()
+|> Menu.input("2")
+|> Menu.input("1")
+|> Menu.input("2")
+|> Menu.input("1")
+|> Menu.input("2")
+|> Menu.input("1")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%MenuState{
+  step: :fancy_step,
+  text: "Hello gorgeous!\n\nFancy menu, choose one of these options please:",
+  choices: [{"1", "Give me a compliment"}, {"2", "Give me a criticism"}],
+  handler_func: #Function<0.30219454/2 in FancyStep.handle_user_text_input>
 }
 ```
