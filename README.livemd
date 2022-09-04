@@ -29,7 +29,7 @@ Menu.start()
 
 ## Interacting with the menu:
 
-Callers interact with the Menu in only one way, and we want to keep it this simple:
+Once initialized, callers interact with the Menu in only one way, and we want to keep it this simple:
 
 * Generate the `MenuState` with Menu.start(),
 * And from there, only call the `Menu.input(user_text, state) :: %MenuState{}` function.
@@ -114,7 +114,7 @@ end
 {:module, FancyStep, <<70, 79, 82, 49, 0, 0, 7, ...>>, {:handle_user_text_input, 2}}
 ```
 
-We can create this step: (usually the first step is created by Menu.start())
+We can create this step: (although usually the first step is created by Menu.start())
 
 ```elixir
 state = FancyStep.create()
@@ -162,21 +162,18 @@ defmodule FancyStep do
     )
   end
 
-  defp handle_user_text_input(input_text, _current_state) do
+  defp handle_user_text_input(input_text, current_state) do
     case input_text do
       "1" ->
         # We've got a lot of flexibility here. In this case we will return a compliment,
         # along with the original choices, so the user "stays" in this particular menu/step.
         {:handled,
          MenuState.new(
-           :fancy_step,
-           "Hello gorgeous!\n\nFancy menu, choose one of these options please:",
-           [
-             {"1", "Give me a compliment"},
-             {"2", "Give me a criticism"}
-           ],
+           current_state.step,
+           "Hello gorgeous!\n\n" <> current_state.text,
+           current_state.choices,
            # Notice how we specify that the user input will 
-           &handle_user_text_input/2
+           current_state.handler_func
          )}
 
       # be handled by this same function again.
@@ -185,13 +182,10 @@ defmodule FancyStep do
         # fetched from a central place, so they aren't copy/pasted all over the place.
         {:handled,
          MenuState.new(
-           :fancy_step,
-           "Hello Ugly!\n\nFancy menu, choose one of these options please:",
-           [
-             {"1", "Give me a compliment"},
-             {"2", "Give me a criticism"}
-           ],
-           &handle_user_text_input/2
+           current_state.step,
+           "Ooh, hello ugly!\n\n" <> current_state.text,
+           current_state.choices,
+           current_state.handler_func
          )}
     end
   end
@@ -201,7 +195,7 @@ end
 <!-- livebook:{"output":true} -->
 
 ```
-{:module, FancyStep, <<70, 79, 82, 49, 0, 0, 8, ...>>, {:handle_user_text_input, 2}}
+{:module, FancyStep, <<70, 79, 82, 49, 0, 0, 12, ...>>, {:handle_user_text_input, 2}}
 ```
 
 Let's call this step again with a user choice and see what we get back:
@@ -217,9 +211,9 @@ FancyStep.create()
 ```
 %MenuState{
   step: :fancy_step,
-  text: "Hello Ugly!\n\nFancy menu, choose one of these options please:",
+  text: "Ooh, hello ugly!\n\nFancy menu, choose one of these options please:",
   choices: [{"1", "Give me a compliment"}, {"2", "Give me a criticism"}],
-  handler_func: #Function<0.30219454/2 in FancyStep.handle_user_text_input>
+  handler_func: #Function<0.52188766/2 in FancyStep.handle_user_text_input>
 }
 ```
 
@@ -230,8 +224,10 @@ FancyStep.create()
 |> Menu.input("2")
 |> Menu.input("1")
 |> Menu.input("2")
+# Note how we stay in the same step.
 |> Menu.input("1")
 |> Menu.input("2")
+# <- The last input, response output below:
 |> Menu.input("1")
 ```
 
@@ -240,8 +236,8 @@ FancyStep.create()
 ```
 %MenuState{
   step: :fancy_step,
-  text: "Hello gorgeous!\n\nFancy menu, choose one of these options please:",
+  text: "Hello gorgeous!\n\nOoh, hello ugly!\n\nHello gorgeous!\n\nOoh, hello ugly!\n\nHello gorgeous!\n\nOoh, hello ugly!\n\nFancy menu, choose one of these options please:",
   choices: [{"1", "Give me a compliment"}, {"2", "Give me a criticism"}],
-  handler_func: #Function<0.30219454/2 in FancyStep.handle_user_text_input>
+  handler_func: #Function<0.52188766/2 in FancyStep.handle_user_text_input>
 }
 ```
